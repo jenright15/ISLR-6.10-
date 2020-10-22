@@ -1,0 +1,87 @@
+---
+title: "Untitled"
+author: "John Enright"
+date: "10/21/2020"
+output: html_document
+---
+
+library(tidyverse)
+set.seed(123)
+## generate X
+xmat = matrix(rnorm(20*1000),1000,20)
+## make beta
+beta = sample(1:10, 20,replace=TRUE)
+## set some to zero
+beta[8:12] = 0
+epsilon = rnorm(20)
+
+## lin equation
+Y.mod = xmat%*%beta + epsilon
+
+#test and train
+playdata <- data.frame(Y.mod,xmat)
+
+trainrow <- sample(1:nrow(playdata), .80*nrow(playdata))
+b.train <- playdata[trainrow,]
+b.test <- playdata[-trainrow,]
+##subset selection
+library(leaps)
+library(dplyr)
+library(purrr)
+best.sub = regsubsets(Y.mod~., data= b.train, nvmax = 20, method = "exhaustive")
+x11()
+plot(best.sub$rss)
+## training MSE
+library(ggplot2)
+train.errors <- rep(NA, 20)
+column.name <- colnames(playdata)
+
+for (i in 1:20) {
+  cofunction = coef(best.sub, id = i)
+  my_pred = as.matrix(b.train[,column.name %in% names(cofunction)]) %*% cofunction[names(cofunction) %in% column.name]
+  train.errors[i] = mean((b.train$Y.mod - my_pred)^2)
+}
+library(data.table)
+train.errors.dt <- data.table(train.errors,seq(1:20))
+## V2 is the column for variables
+x11()
+ggplot(train.errors.dt, aes(x = V2, y = train.errors)) + geom_line() + geom_point() + ggtitle("Train Errors")
+which.min(train.errors) #20
+
+## testing MSE
+test.errors <- rep(NA, 20)
+column.name <- colnames(playdata)
+
+for (i in 1:20) {
+  cofunction = coef(best.sub, id = i)
+  my_pred2 = as.matrix(b.test[,column.name %in% names(cofunction)]) %*% cofunction[names(cofunction) %in% column.name]
+  test.errors[i] = mean((b.test$Y.mod - my_pred2)^2)
+}
+library(data.table)
+test.errors.dt <- data.table(test.errors,seq(1:20))
+## V2 is the column for variables
+x11()
+ggplot(test.errors.dt, aes(x = V2, y = test.errors)) + geom_line() + geom_point() + ggtitle("Test Errors")
+which.min(test.errors) #15, which is correct!
+
+## true model MSE
+model.errors <- rep(NA,20)
+z1 <- rep(NA,20)
+z2 <- rep(NA,20)
+
+columns <- column.name[-c(1)]
+
+for (i in 1:20) {
+  cofunction = coef(best.sub, id = i)
+  z1[i] = length(cofunction)
+  z2[i] =  sqrt(sum((beta[columns%in% names(cofunction)] - cofunction[names(cofunction) %in% columns])^2) + 
+                   sum(beta[!(columns %in% names(cofunction))])^2)
+}
+
+true.errors.dt <- data.table(z1, z2, keep.rownames = TRUE)
+x11()
+ggplot(true.errors.dt, aes(z1,z2)) + geom_point() + geom_line() + ggtitle("True Model Errors")
+which.min(true.errors.dt$z2) #15!
+## coefficients
+mycoef <- coef(best.sub, id =19)
+mycoef
