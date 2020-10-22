@@ -19,3 +19,6 @@ coefficient values.
 
 
 Code is written in R Markdown.
+--
+Figures
+
