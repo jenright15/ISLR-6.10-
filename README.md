@@ -22,3 +22,6 @@ Code is written in R Markdown.
 --
 Figures
 
+![question2_trainerrors](https://user-images.githubusercontent.com/66652338/96805690-3522b080-13e0-11eb-8c13-a29cbc3e0088.png)
+![question2_truemodel errors](https://user-images.githubusercontent.com/66652338/96805694-3522b080-13e0-11eb-86cf-4a9bcc65f7d1.png)
+![question2_testerrors](https://user-images.githubusercontent.com/66652338/96805695-3522b080-13e0-11eb-9316-fe05e15d7968.png)
