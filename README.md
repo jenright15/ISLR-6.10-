@@ -16,3 +16,6 @@ For which model size does the test set MSE take on its minimum value?
 Comment on your results. How does the model at which the test set MSE is
 minimized compare to the true model used to generate the data? Comment on the
 coefficient values.
+
+
+Code is written in R Markdown.
