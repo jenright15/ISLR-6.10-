@@ -18,7 +18,7 @@ minimized compare to the true model used to generate the data? Comment on the
 coefficient values.
 
 
-Code is written in R Markdown.
+Code is written in R
 --
 Results
 
